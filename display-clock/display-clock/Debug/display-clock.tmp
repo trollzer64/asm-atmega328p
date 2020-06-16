@@ -1,0 +1,41 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.7</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m328pdef.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\Debug\display-clock.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>display-clock.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>display-clock.map</FILE>
+  <FILE>display-clock.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <reset><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>20</LINE></reset>
+  <timer2_ovf><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>65</LINE></timer2_ovf>
+  <init><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>45</LINE></init>
+  <wait_fcn><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>177</LINE></wait_fcn>
+  <send_fcn><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>164</LINE></send_fcn>
+  <loop><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>61</LINE></loop>
+  <limit_fcn><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>116</LINE></limit_fcn>
+  <send_message><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>111</LINE></send_message>
+  <write><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>126</LINE></write>
+  <incr><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>120</LINE></incr>
+  <busy><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>184</LINE></busy>
+  <delay><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>209</LINE></delay>
+  <back><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>215</LINE></back>
+  <man_break><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>225</LINE></man_break>
+  <latch><FILE>C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm</FILE><LINE>228</LINE></latch>
+ </LABELS>
+</ASSEMBLER_INFO>
