@@ -68,63 +68,63 @@ timer2_ovf:
 	ANDI S,0xF0
 	ADD S,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 	
 	; S(1)
 	LDI MAXV,0x05
-	MOV AUX,S			; Carrega n�mero do nibble
+	MOV AUX,S			; Carrega número do nibble
 	ANDI AUX,0xF0
 	SWAP AUX
-	RCALL limit_fcn		; Incrementa e limita ao numero m�ximo
+	RCALL limit_fcn		; Incrementa e limita ao numero máximo
 	SWAP AUX
 	ANDI S,0x0F
-	ADD S,AUX			; Guarda n�mero no nibble
+	ADD S,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 	
 	; M(0)
 	LDI MAXV,0x09
-	MOV AUX,M			; Carrega n�mero do nibble
+	MOV AUX,M			; Carrega número do nibble
 	ANDI AUX,0x0F
-	RCALL limit_fcn		; Incrementa e limita ao numero m�ximo
+	RCALL limit_fcn		; Incrementa e limita ao numero máximo
 	ANDI M,0xF0
-	ADD M,AUX			; Guarda n�mero no nibble
+	ADD M,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 	
 	; M(1)
 	LDI MAXV,0x05
-	MOV AUX,M			; Carrega n�mero do nibble
+	MOV AUX,M			; Carrega número do nibble
 	ANDI AUX,0xF0
 	SWAP AUX
-	RCALL limit_fcn		; Incrementa e limita ao numero m�ximo
+	RCALL limit_fcn		; Incrementa e limita ao numero máximo
 	SWAP AUX
 	ANDI M,0x0F
-	ADD M,AUX			; Guarda n�mero no nibble
+	ADD M,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 
 	; H(0)
 	LDI MAXV,0x03
-	MOV AUX,H			; Carrega n�mero do nibble
+	MOV AUX,H			; Carrega número do nibble
 	ANDI AUX,0x0F
-	RCALL limit_fcn		; Incrementa e limita ao numero m�ximo
+	RCALL limit_fcn		; Incrementa e limita ao numero máximo
 	ANDI H,0xF0
-	ADD H,AUX			; Guarda n�mero no nibble
+	ADD H,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 	
 	; H(1)
 	LDI MAXV,0x02
-	MOV AUX,H			; Carrega n�mero do nibble
+	MOV AUX,H			; Carrega número do nibble
 	ANDI AUX,0xF0
 	SWAP AUX
-	RCALL limit_fcn		; Incrementa e limita ao numero m�ximo
+	RCALL limit_fcn		; Incrementa e limita ao numero máximo
 	SWAP AUX
 	ANDI H,0x0F
-	ADD H,AUX			; Guarda n�mero no nibble
+	ADD H,AUX			; Guarda número no nibble
 	CPI AUX,0x00
-	BRNE send_message	; Se overflow n�mero, incrementa o pr�ximo
+	BRNE send_message	; Se overflow número, incrementa o próximo
 	send_message:
 		RCALL write_fcn
 	RETI
