@@ -223,7 +223,7 @@ wait_fcn:
 		SBRC R17,7
 		RJMP busy
 
-	RCALL delay_fcn				; Espera de 0.000006s necessária‬
+	RCALL delay_fcn				; Espera de 0.000040s necessária‬
 
 	; End of LCD instruction
 	ANDI R16,0b11111110			; E on 0
@@ -243,7 +243,7 @@ delay_fcn:
 	PUSH R17
 	LDI R17,0x02
 	LDI R18,0xFF
-	; t = 0.000071s, t_ADD = 0.000040s
+	; t_ADD = 0.000040s
 	back:
 		DEC R17			; 1		CLK
 		BRNE back		; 1/2	CLK

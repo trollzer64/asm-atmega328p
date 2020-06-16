@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm Mon Jun 15 22:57:41 2020
+AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm Mon Jun 15 23:05:45 2020
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m328pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m328pdef.inc'
@@ -1209,7 +1209,7 @@ AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-cl
 0000a3 fd17                      		SBRC R17,7
 0000a4 cff9                      		RJMP busy
                                  
-0000a5 d007                      	RCALL delay_fcn				; Espera de 0.000006s necessária‬
+0000a5 d007                      	RCALL delay_fcn				; Espera de 0.000040s necessária‬
                                  
                                  	; End of LCD instruction
 0000a6 7f0e                      	ANDI R16,0b11111110			; E on 0
@@ -1229,7 +1229,7 @@ AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-cl
 0000ae 931f                      	PUSH R17
 0000af e012                      	LDI R17,0x02
 0000b0 ef2f                      	LDI R18,0xFF
-                                 	; t = 0.000071s, t_ADD = 0.000040s
+                                 	; t_ADD = 0.000040s
                                  	back:
 0000b1 951a                      		DEC R17			; 1		CLK
 0000b2 f7f1                      		BRNE back		; 1/2	CLK
