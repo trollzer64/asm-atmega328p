@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm Mon Jun 15 21:48:43 2020
+AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-clock\main.asm Mon Jun 15 22:57:41 2020
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m328pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m328pdef.inc'
@@ -990,230 +990,254 @@ AVRASM ver. 2.2.7  C:\Users\franc\source\asm-atmega328p\display-clock\display-cl
                                  ; Created: 15/06/2020 21:48:10
                                  ;
                                  
-                                 .equ B0 = PC0				; Bot„o 0
-                                 .def AUX = R16				; Para principais configuraÁıes
+                                 .def AUX = R16				; Para principais configura√ß√µes
                                  .def CTRL = R17				; LCD: E, RW, RS,-,-,-,-,-
                                  .def DATA = R18				; LCD: D[0..7]
-                                 .def M = R19
-                                 .def S = R20
-                                 .def MAXV = R21
+                                 .def H = R19				; Registrador para guardar horas (Um d√≠gito por nibble: [D0,D1])
+                                 .def M = R20				; Registrador para guardar minutos (Um d√≠gito por nibble: [D0,D1])
+                                 .def S = R21				; Registrador para guardar segundos (Um d√≠gito por nibble: [D0,D1])
+                                 .def MAXV = R22				; Registrador para o n√∫mero m√°ximo de um d√≠gito
                                  
                                  .ORG 0x0000
 000000 c012                      RJMP reset
                                  .ORG 0x0012
-000012 c020                      RJMP timer2_ovf
+000012 c01d                      RJMP timer2_ovf
                                  
                                  reset:
-                                 	; Botao
-000013 ef0e                      	LDI AUX,0b11111110
-000014 b907                      	OUT DDRC,AUX
-000015 ec01                      	LDI AUX,0b11000001
-000016 b908                      	OUT PORTC,AUX
-                                 	; Timer
-000017 e200                      	LDI AUX,0b00100000	; (AS2)
-000018 9300 00b6                 	STS ASSR,AUX
-00001a e005                      	LDI AUX,0b00000101	; (CS22|CS20)
-00001b 9300 00b1                 	STS TCCR2B,AUX
-                                 	; InterrupÁıes
-00001d 9478                      	SEI
-00001e e001                      	LDI AUX,0b00000001	; (TOIE2)
-00001f 9300 0070                 	STS TIMSK2,AUX		; InterrupÁ„o do Timer/Counter 2
                                  	; LCD data
-000021 ef0f                      	LDI AUX,0b11111111	; D[0..7]
-000022 b90a                      	OUT DDRD,AUX
+000013 ef0f                      	LDI AUX,0b11111111	; D[0..7]
+000014 b90a                      	OUT DDRD,AUX
                                  	; LCD control
-000023 e007                      	LDI AUX,0b00000111	; E, RW, RS
-000024 b904                      	OUT DDRB,AUX
-                                 	; Initial time
-000025 e539                      	LDI M,0x59
-000026 e445                      	LDI S,0x45
-                                 ; INICIALIZA«√O DO DISPLAY (TABELA 13)
-                                 init:
-                                 	; 1 - Power supply
-000027 d058                      	RCALL wait_fcn
-                                 	; 2 - Function set
-000028 e010                      	LDI CTRL,0b00000000
-000029 e328                      	LDI DATA,0b00111000		; 8b mode; 2-line display; 5x8 font
-00002a d04d                      	RCALL send_fcn
-                                 	; 3 - Display on/off control
-00002b e010                      	LDI CTRL,0b00000000
-00002c e02c                      	LDI DATA,0b00001100		; Display on; Cursor off; blink off
-00002d d04a                      	RCALL send_fcn
-                                 	; 4 - Entry mode set :
-00002e e010                      	LDI CTRL,0b00000000
-00002f e026                      	LDI DATA,0b00000110		; Increment and shift cursor; Don't shift display
-000030 d047                      	RCALL send_fcn
-                                 
-                                 loop:
-000031 0000                      	NOP
-000032 cffe                      	RJMP loop
-                                 
-                                 timer2_ovf:
-                                 	; incrementar aqui M ou S
+000015 e007                      	LDI AUX,0b00000111	; E, RW, RS,-,-,-,-,-
+000016 b904                      	OUT DDRB,AUX
+                                 	; Tempo inicial
+000017 e233                      	LDI H,0x23
+000018 e549                      	LDI M,0x59
+000019 e455                      	LDI S,0x45
+                                 	; INICIALIZA√á√ÉO DO DISPLAY
+                                 	lcd_init:
+                                 		; 1 - Power supply
+00001a d07f                      		RCALL wait_fcn
+                                 		; 2 - Function set
+00001b e010                      		LDI CTRL,0b00000000
+00001c e328                      		LDI DATA,0b00111000		; 8b mode; 2-line display; 5x8 font
+00001d d074                      		RCALL send_fcn
+                                 		; 3 - Display on/off control
+00001e e010                      		LDI CTRL,0b00000000
+00001f e02c                      		LDI DATA,0b00001100		; Display on; Cursor off; blink off
+000020 d071                      		RCALL send_fcn
+                                 		; 4 - Entry mode set :
+000021 e010                      		LDI CTRL,0b00000000
+000022 e026                      		LDI DATA,0b00000110		; Increment and shift cursor; Don't shift display
+000023 d06e                      		RCALL send_fcn
                                  	
+                                 	; Setup Timer - Oscilador externo, modo ass√≠ncrono
+000024 e200                      	LDI AUX,0b00100000	; (AS2) Asynchronous Timer/Counter 2
+000025 9300 00b6                 	STS ASSR,AUX
+000027 e005                      	LDI AUX,0b00000101	; (CS22|CS20) prescaler = 128
+000028 9300 00b1                 	STS TCCR2B,AUX
+                                 	; Interrup√ß√µes - Timer 2, modo overflow
+00002a 9478                      	SEI
+00002b e001                      	LDI AUX,0b00000001	; (TOIE2) Overflow Interrupt Enable
+00002c 9300 0070                 	STS TIMSK2,AUX
+                                 ; LOOP PARA INTERROMPER
+                                 loop:
+00002e 0000                      	NOP
+00002f cffe                      	RJMP loop
+                                 ; INCREMENTO DE TEMPO E DISPLAY DO NOVO D√çGITO
+                                 timer2_ovf:
                                  	; S(0)
-000033 e059                      	LDI MAXV,0x09
-000034 2f04                      	MOV AUX,S			; Carrega n˙mero do nibble
-000035 700f                      	ANDI AUX,0x0F
-000036 d022                      	RCALL limit_fcn		; Incrementa e limita ao numero m·ximo
-000037 7f40                      	ANDI S,0xF0
-000038 0f40                      	ADD S,AUX			; Guarda n˙mero no nibble
-000039 3000                      	CPI AUX,0x00
-00003a f4e1                      	BRNE send_message	; Se overflow n˙mero, incrementa o prÛximo
+000030 e069                      	LDI MAXV,0x09
+000031 2f05                      	MOV AUX,S			; Carrega n√∫mero do nibble
+000032 700f                      	ANDI AUX,0x0F
+000033 d034                      	RCALL limit_fcn		; Incrementa e limita ao numero m√°ximo
+000034 7f50                      	ANDI S,0xF0
+000035 0f50                      	ADD S,AUX			; Guarda n√∫mero no nibble
+000036 3000                      	CPI AUX,0x00
+000037 f571                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
                                  	
                                  	; S(1)
-00003b e055                      	LDI MAXV,0x05
-00003c 2f04                      	MOV AUX,S			; Carrega n˙mero do nibble
-00003d 7f00                      	ANDI AUX,0xF0
-00003e 9502                      	SWAP AUX
-00003f d019                      	RCALL limit_fcn		; Incrementa e limita ao numero m·ximo
-000040 9502                      	SWAP AUX
-000041 704f                      	ANDI S,0x0F
-000042 0f40                      	ADD S,AUX			; Guarda n˙mero no nibble
-000043 3000                      	CPI AUX,0x00
-000044 f491                      	BRNE send_message	; Se overflow n˙mero, incrementa o prÛximo
+000038 e065                      	LDI MAXV,0x05
+000039 2f05                      	MOV AUX,S			; Carrega nÔøΩmero do nibble
+00003a 7f00                      	ANDI AUX,0xF0
+00003b 9502                      	SWAP AUX
+00003c d02b                      	RCALL limit_fcn		; Incrementa e limita ao numero mÔøΩximo
+00003d 9502                      	SWAP AUX
+00003e 705f                      	ANDI S,0x0F
+00003f 0f50                      	ADD S,AUX			; Guarda nÔøΩmero no nibble
+000040 3000                      	CPI AUX,0x00
+000041 f521                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
                                  	
                                  	; M(0)
-000045 e059                      	LDI MAXV,0x09
-000046 2f03                      	MOV AUX,M			; Carrega n˙mero do nibble
-000047 700f                      	ANDI AUX,0x0F
-000048 d010                      	RCALL limit_fcn		; Incrementa e limita ao numero m·ximo
-000049 7f30                      	ANDI M,0xF0
-00004a 0f30                      	ADD M,AUX			; Guarda n˙mero no nibble
-00004b 3000                      	CPI AUX,0x00
-00004c f451                      	BRNE send_message	; Se overflow n˙mero, incrementa o prÛximo
+000042 e069                      	LDI MAXV,0x09
+000043 2f04                      	MOV AUX,M			; Carrega nÔøΩmero do nibble
+000044 700f                      	ANDI AUX,0x0F
+000045 d022                      	RCALL limit_fcn		; Incrementa e limita ao numero mÔøΩximo
+000046 7f40                      	ANDI M,0xF0
+000047 0f40                      	ADD M,AUX			; Guarda nÔøΩmero no nibble
+000048 3000                      	CPI AUX,0x00
+000049 f4e1                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
                                  	
                                  	; M(1)
-00004d e055                      	LDI MAXV,0x05
-00004e 2f03                      	MOV AUX,M			; Carrega n˙mero do nibble
-00004f 7f00                      	ANDI AUX,0xF0
-000050 9502                      	SWAP AUX
-000051 d007                      	RCALL limit_fcn		; Incrementa e limita ao numero m·ximo
-000052 9502                      	SWAP AUX
-000053 703f                      	ANDI M,0x0F
-000054 0f30                      	ADD M,AUX			; Guarda n˙mero no nibble
-000055 3000                      	CPI AUX,0x00
-000056 f401                      	BRNE send_message	; Se overflow n˙mero, incrementa o prÛximo
-                                 send_message:
-000057 d006                      	RCALL write
-000058 9518                      	RETI
+00004a e065                      	LDI MAXV,0x05
+00004b 2f04                      	MOV AUX,M			; Carrega nÔøΩmero do nibble
+00004c 7f00                      	ANDI AUX,0xF0
+00004d 9502                      	SWAP AUX
+00004e d019                      	RCALL limit_fcn		; Incrementa e limita ao numero mÔøΩximo
+00004f 9502                      	SWAP AUX
+000050 704f                      	ANDI M,0x0F
+000051 0f40                      	ADD M,AUX			; Guarda nÔøΩmero no nibble
+000052 3000                      	CPI AUX,0x00
+000053 f491                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
                                  
-                                 ; limit_fcn(AUX, MAXV)
+                                 	; H(0)
+000054 e063                      	LDI MAXV,0x03
+000055 2f03                      	MOV AUX,H			; Carrega nÔøΩmero do nibble
+000056 700f                      	ANDI AUX,0x0F
+000057 d010                      	RCALL limit_fcn		; Incrementa e limita ao numero mÔøΩximo
+000058 7f30                      	ANDI H,0xF0
+000059 0f30                      	ADD H,AUX			; Guarda nÔøΩmero no nibble
+00005a 3000                      	CPI AUX,0x00
+00005b f451                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
+                                 	
+                                 	; H(1)
+00005c e062                      	LDI MAXV,0x02
+00005d 2f03                      	MOV AUX,H			; Carrega nÔøΩmero do nibble
+00005e 7f00                      	ANDI AUX,0xF0
+00005f 9502                      	SWAP AUX
+000060 d007                      	RCALL limit_fcn		; Incrementa e limita ao numero mÔøΩximo
+000061 9502                      	SWAP AUX
+000062 703f                      	ANDI H,0x0F
+000063 0f30                      	ADD H,AUX			; Guarda nÔøΩmero no nibble
+000064 3000                      	CPI AUX,0x00
+000065 f401                      	BRNE send_message	; Se overflow nÔøΩmero, incrementa o prÔøΩximo
+                                 	send_message:
+000066 d006                      		RCALL write_fcn
+000067 9518                      	RETI
+                                 
+                                 ; limit_fcn(AUX, MAXV) - Incrementa um valor com um limite m√°ximo
                                  limit_fcn:
-000059 1705                      	CP AUX,MAXV
-00005a f409                      	BRNE incr
-00005b ef0f                      	LDI AUX,0xFF
-                                 incr:
-00005c 9503                      	INC AUX
+000068 1706                      	CP AUX,MAXV			; Se n√∫mero m√°ximo...
+000069 f409                      	BRNE incr
+00006a ef0f                      	LDI AUX,0xFF		; Zerar valor
+                                 	incr:
+00006b 9503                      		INC AUX
+00006c 9508                      	RET
                                  
-00005d 9508                      	RET
-                                 
-                                 ; ESCREVENDO CARACTERES
-                                 write:
+                                 ; write_fcn(H, M, S) - Entra no display o valor selecionado
+                                 write_fcn:
                                  	; Clear display :
-00005e e010                      	LDI CTRL,0b00000000
-00005f e021                      	LDI DATA,0b00000001		; Clear display
-000060 d017                      	RCALL send_fcn
+00006d e010                      	LDI CTRL,0b00000000
+00006e e021                      	LDI DATA,0b00000001		; Clear display command
+00006f d022                      	RCALL send_fcn
                                  	
                                  	; 5 - Write data to CGRAM/DDRAM :
-000061 e014                      	LDI CTRL,0b00000100
-000062 e300                      	LDI AUX,'0'
+000070 e014                      	LDI CTRL,0b00000100
+000071 e300                      	LDI AUX,'0'				; Valor base do char '0'
                                  
-000063 2f23                      	MOV DATA,M
-000064 7f20                      	ANDI DATA,0xF0
-000065 9522                      	SWAP DATA
-000066 0f20                      	ADD DATA,AUX
-000067 d010                      	RCALL send_fcn
-                                 
-000068 2f23                      	MOV DATA,M
-000069 702f                      	ANDI DATA,0x0F
-00006a 0f20                      	ADD DATA,AUX
-00006b d00c                      	RCALL send_fcn
-                                 
-00006c e32a                      	LDI DATA,':'
-00006d d00a                      	RCALL send_fcn
-                                 
-00006e 2f24                      	MOV DATA,S
-00006f 7f20                      	ANDI DATA,0xF0
-000070 9522                      	SWAP DATA
-000071 0f20                      	ADD DATA,AUX
-000072 d005                      	RCALL send_fcn
-                                 
-000073 2f24                      	MOV DATA,S
-000074 702f                      	ANDI DATA,0x0F
+000072 2f23                      	MOV DATA,H
+000073 7f20                      	ANDI DATA,0xF0
+000074 9522                      	SWAP DATA
 000075 0f20                      	ADD DATA,AUX
-000076 d001                      	RCALL send_fcn
+000076 d01b                      	RCALL send_fcn
                                  
-000077 9508                      	RET
+000077 2f23                      	MOV DATA,H
+000078 702f                      	ANDI DATA,0x0F
+000079 0f20                      	ADD DATA,AUX
+00007a d017                      	RCALL send_fcn
                                  
-                                 ; (CTRL, DATA)
+00007b e32a                      	LDI DATA,':'
+00007c d015                      	RCALL send_fcn
+                                 
+00007d 2f24                      	MOV DATA,M
+00007e 7f20                      	ANDI DATA,0xF0
+00007f 9522                      	SWAP DATA
+000080 0f20                      	ADD DATA,AUX
+000081 d010                      	RCALL send_fcn
+                                 
+000082 2f24                      	MOV DATA,M
+000083 702f                      	ANDI DATA,0x0F
+000084 0f20                      	ADD DATA,AUX
+000085 d00c                      	RCALL send_fcn
+                                 
+000086 e32a                      	LDI DATA,':'
+000087 d00a                      	RCALL send_fcn
+                                 
+000088 2f25                      	MOV DATA,S
+000089 7f20                      	ANDI DATA,0xF0
+00008a 9522                      	SWAP DATA
+00008b 0f20                      	ADD DATA,AUX
+00008c d005                      	RCALL send_fcn
+                                 
+00008d 2f25                      	MOV DATA,S
+00008e 702f                      	ANDI DATA,0x0F
+00008f 0f20                      	ADD DATA,AUX
+000090 d001                      	RCALL send_fcn
+                                 
+000091 9508                      	RET
+                                 
+                                 ; send_fcn(CTRL, DATA) - envia um byte de dados ao LCD
                                  send_fcn:
-000078 d007                      	RCALL wait_fcn			; Check busy flag
+000092 d007                      	RCALL wait_fcn			; Check busy flag
                                  
-000079 b92b                      	OUT PORTD,DATA
-00007a b915                      	OUT PORTB,CTRL
+000093 b92b                      	OUT PORTD,DATA
+000094 b915                      	OUT PORTB,CTRL
                                  
-00007b 6011                      	ORI CTRL,0b00000001		; E on 1
-00007c b915                      	OUT PORTB,CTRL
-00007d 7f1e                      	ANDI CTRL,0b11111110	; E on 0
-00007e b915                      	OUT PORTB,CTRL
+000095 6011                      	ORI CTRL,0b00000001		; E on 1
+000096 b915                      	OUT PORTB,CTRL
+000097 7f1e                      	ANDI CTRL,0b11111110	; E on 0
+000098 b915                      	OUT PORTB,CTRL
                                  
-00007f 9508                      	RET
+000099 9508                      	RET
                                  
+                                 ; wait_fcn() - Espera a busy flag do LCD estar livre
                                  wait_fcn:
-000080 930f                      	PUSH R16
-000081 931f                      	PUSH R17
+00009a 930f                      	PUSH R16
+00009b 931f                      	PUSH R17
                                  	
                                  	; PORTD input
-000082 e000                      	LDI R16,0b0000000	; D[0..7]
-000083 b90a                      	OUT DDRD,R16
-                                 busy:
-                                 	; Send read command
-000084 e002                      	LDI R16,0b00000010	; E, RW, RS
-000085 b905                      	OUT PORTB,R16
-000086 6001                      	ORI R16,0b00000001		; E on 1
-000087 b905                      	OUT PORTB,R16
-                                 	; Check busy flag
-000088 b11b                      	IN R17,PORTD
-000089 fd17                      	SBRC R17,7
-00008a cff9                      	RJMP busy
+00009c e000                      	LDI R16,0b00000000			; D[0..7]
+00009d b90a                      	OUT DDRD,R16
+                                 	busy:
+                                 		; Send read command
+00009e e002                      		LDI R16,0b00000010		; E, RW, RS
+00009f b905                      		OUT PORTB,R16
+0000a0 6001                      		ORI R16,0b00000001		; E on 1
+0000a1 b905                      		OUT PORTB,R16
+                                 		; Check busy flag
+0000a2 b11b                      		IN R17,PORTD
+0000a3 fd17                      		SBRC R17,7
+0000a4 cff9                      		RJMP busy
                                  
-00008b d007                      	RCALL delay
+0000a5 d007                      	RCALL delay_fcn				; Espera de 0.000006s necess√°ria‚Ä¨
                                  
                                  	; End of LCD instruction
-00008c 7f0e                      	ANDI R16,0b11111110	; E on 0
-00008d b905                      	OUT PORTB,R16
+0000a6 7f0e                      	ANDI R16,0b11111110			; E on 0
+0000a7 b905                      	OUT PORTB,R16
                                  
                                  	; PORTD output
-00008e e70f                      	LDI R16,0b1111111	; D[0..7]
-00008f b90a                      	OUT DDRD,R16
+0000a8 ef0f                      	LDI R16,0b11111111			; D[0..7]
+0000a9 b90a                      	OUT DDRD,R16
                                  
-000090 911f                      	POP R17
-000091 910f                      	POP R16
-000092 9508                      	RET
+0000aa 911f                      	POP R17
+0000ab 910f                      	POP R16
+0000ac 9508                      	RET
                                  
-                                 delay:
-000093 932f                      	PUSH R18
-000094 931f                      	PUSH R17
-000095 e012                      	LDI R17,0x02
-000096 ef2f                      	LDI R18,0xFF
+                                 ; delay_fcn() -  Delay necess√°rio ap√≥s clear da busy flag do LCD
+                                 delay_fcn:
+0000ad 932f                      	PUSH R18
+0000ae 931f                      	PUSH R17
+0000af e012                      	LDI R17,0x02
+0000b0 ef2f                      	LDI R18,0xFF
                                  	; t = 0.000071s, t_ADD = 0.000040s
-                                 back:
-000097 951a                      	DEC R17			; 1		CLK
-000098 f7f1                      	BRNE back		; 1/2	CLK
-000099 952a                      	DEC R18			; 1		CLK
-00009a f7e1                      	BRNE back		; 1/2	CLK
-                                 
-00009b 911f                      	POP R17
-00009c 912f                      	POP R18
-00009d 9508                      	RET
-                                 
-                                 man_break:
-00009e 9930                      	SBIC PINC,B0
-00009f cffe                      	RJMP man_break
-                                 latch:
-0000a0 9b30                      	SBIS PINC,B0
-0000a1 cffe                      	RJMP latch
+                                 	back:
+0000b1 951a                      		DEC R17			; 1		CLK
+0000b2 f7f1                      		BRNE back		; 1/2	CLK
+0000b3 952a                      		DEC R18			; 1		CLK
+0000b4 f7e1                      		BRNE back		; 1/2	CLK
+0000b5 911f                      	POP R17
+0000b6 912f                      	POP R18
+0000b7 9508                      	RET
                                  
 
 
@@ -1234,37 +1258,37 @@ counted separately from r26..r31 here.
 "ATmega328P" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  54 r17:  18 r18:  24 r19:   9 r20:   9 
-r21:   5 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:  62 r17:  18 r18:  32 r19:   9 r20:   9 
+r21:   9 r22:   7 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
-Registers used: 6 out of 35 (17.1%)
+Registers used: 7 out of 35 (20.0%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   8 adiw  :   0 and   :   0 
-andi  :  14 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :  12 adiw  :   0 and   :   0 
+andi  :  20 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   7 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :   9 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 
-cpi   :   4 cpse  :   0 dec   :   2 eor   :   0 fmul  :   0 fmuls :   0 
+cpi   :   6 cpse  :   0 dec   :   2 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   1 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  30 lds   :   0 lpm   :   0 lsl   :   0 
-lsr   :   0 mov   :   8 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   1 or    :   0 ori   :   2 out   :  13 pop   :   4 
-push  :   4 rcall :  17 ret   :   6 reti  :   1 rjmp  :   6 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   1 sbis  :   1 
+ld    :   0 ldd   :   0 ldi   :  32 lds   :   0 lpm   :   0 lsl   :   0 
+lsr   :   0 mov   :  12 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   1 or    :   0 ori   :   2 out   :  11 pop   :   4 
+push  :   4 rcall :  22 ret   :   5 reti  :   1 rjmp  :   4 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   1 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   3 
-sub   :   0 subi  :   0 swap  :   6 tst   :   0 wdr   :   0 
-Instructions used: 25 out of 113 (22.1%)
+sub   :   0 subi  :   0 swap  :   9 tst   :   0 wdr   :   0 
+Instructions used: 23 out of 113 (20.4%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000146    292      0    292   32768   0.9%
+[.cseg] 0x000000 0x000170    334      0    334   32768   1.0%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
